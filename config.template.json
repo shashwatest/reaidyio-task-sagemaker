@@ -1,0 +1,88 @@
+{
+  "aws": {
+    "region": "us-east-1",
+    "account_id": "<YOUR_AWS_ACCOUNT_ID>",
+    "sagemaker_role": "arn:aws:iam::<YOUR_AWS_ACCOUNT_ID>:role/SageMakerExecutionRole",
+    "s3_bucket": "<YOUR_S3_BUCKET_NAME>"
+  },
+  "training": {
+    "dataset": "cifar10",
+    "num_classes": 10,
+    "instance_type": "ml.g4dn.xlarge",
+    "instance_count": 2,
+    "use_spot_instances": true,
+    "max_run_seconds": 10800,
+    "max_wait_seconds": 21600,
+    "hyperparameters": {
+      "epochs": 50,
+      "batch_size": 128,
+      "learning_rate": 0.1,
+      "momentum": 0.9,
+      "weight_decay": 0.0005
+    }
+  },
+  "hyperparameter_tuning": {
+    "max_jobs": 20,
+    "max_parallel_jobs": 2,
+    "objective_metric": "validation:accuracy",
+    "objective_type": "Maximize",
+    "parameter_ranges": {
+      "learning_rate": {
+        "type": "Continuous",
+        "min": 0.001,
+        "max": 0.2
+      },
+      "batch_size": {
+        "type": "Integer",
+        "min": 64,
+        "max": 256
+      },
+      "momentum": {
+        "type": "Continuous",
+        "min": 0.8,
+        "max": 0.99
+      },
+      "weight_decay": {
+        "type": "Continuous",
+        "min": 0.00001,
+        "max": 0.001
+      }
+    }
+  },
+  "deployment": {
+    "endpoint_name": "image-classifier-endpoint",
+    "instance_type": "ml.m5.xlarge",
+    "initial_instance_count": 1,
+    "auto_scaling": {
+      "enabled": true,
+      "min_capacity": 1,
+      "max_capacity": 3,
+      "target_invocations_per_instance": 70
+    }
+  },
+  "docker": {
+    "image_name": "sagemaker-pytorch-training",
+    "base_image": "pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime"
+  },
+  "monitoring": {
+    "enable_cloudwatch_metrics": true,
+    "metric_definitions": [
+      {
+        "Name": "train:loss",
+        "Regex": "train_loss=([0-9\\.]+)"
+      },
+      {
+        "Name": "train:accuracy",
+        "Regex": "train_acc=([0-9\\.]+)"
+      },
+      {
+        "Name": "validation:loss",
+        "Regex": "val_loss=([0-9\\.]+)"
+      },
+      {
+        "Name": "validation:accuracy",
+        "Regex": "val_acc=([0-9\\.]+)"
+      }
+    ]
+  }
+}
